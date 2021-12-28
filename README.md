@@ -8,17 +8,24 @@ Experiments with Project Loom's features based on these JEP(draft)s:
 ## Experiments
 
 For these experiments, you need a current [Project Loom EA build](https://jdk.java.net/loom/) and Maven.
-Build the project with `mvn package` to get `target/loom-lab.jar`.
+
+If you have SDKMan installed you can install the java version with `lm` in its name, i.e. `sdk install java 19.ea.1.lm-open`.
+
 To run it:
 
 ```
-java --enable-preview -p target/loom-lab.jar -m loom.lab $EXPERIMENT $ARGUMENTS
+jbang $EXPERIMENT.java $ARGUMENTS
 ```
 
 Where:
 
 * `$EXPERIMENT` selects one of the experiments by name
 * `$ARGUMENTS` configures the experiment
+
+Example:
+```
+jbang DiskStats.java VIRTUAL .
+```
 
 For details on these, see specific experiments below.
 
@@ -27,9 +34,8 @@ For details on these, see specific experiments below.
 Walks over all folders and files in a given directory to gather their respective sizes.
 Can be configured to either run as a single thread or with one virtual thread for each file/folder.
 
-* package: [`dev.nipafx.lab.loom.disk`](src/main/java/dev/nipafx/lab/loom/disk)
 * name: `DiskStats`
-* arguments: see [`DiskStats.java`.](src/main/java/dev/nipafx/lab/loom/disk/DiskStats.java)
+* arguments: see [`DiskStats.java`](DiskStats.java)
 
 ### Echo Client & Server
 
@@ -47,10 +53,14 @@ Server protocol:
 
 To try this out, run the client and the server in different shells.
 
-* package: [`dev.nipafx.lab.loom.echo`](src/main/java/dev/nipafx/lab/loom/echo)
 * server
-	* name: `EchoServer`
-	* arguments: see [`Echo.java`.](src/main/java/dev/nipafx/lab/loom/echo/server/Echo.java)
+    * name: `EchoServer`
+    * arguments: see [`Echo.java`.](Echo.java)
 * client
     * name: `EchoClient`
-    * arguments: see [`Send.java`.](src/main/java/dev/nipafx/lab/loom/echo/client/Send.java), 
+    * arguments: see [`Send.java`.](Send.java), 
+
+## Edit 
+
+To edit one of the examples in an IDE use `jbang edit`, i.e. `jbang edit Echo.java`.
+

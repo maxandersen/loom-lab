@@ -1,4 +1,7 @@
-package dev.nipafx.lab.loom.echo.server;
+/** enable preview to get access to loom/StructuredExecutor **/
+//JAVA_OPTIONS --enable-preview
+//JAVAC_OPTIONS --enable-preview --source 19
+//JAVA 19
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,7 +9,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
+import java.util.concurrent.StructuredExecutor;
 
 public class Echo {
 
@@ -73,4 +83,53 @@ public class Echo {
 		VIRTUAL
 	}
 
+    static class PooledServer implements Server {
+
+        private final Consumer<Socket> echo;
+        private final ExecutorService pool;
+
+        PooledServer(Consumer<Socket> echo, int threadCount) {
+            this.echo = requireNonNull(echo);
+            this.pool = Executors.newFixedThreadPool(threadCount);
+        }
+
+        @Override
+        public void listen() throws IOException {
+            ServerSocket server = new ServerSocket(8080);
+            try (pool) {
+                while (true) {
+                    Socket socket = server.accept();
+                    pool.submit(() -> echo.accept(socket));
+                }
+            }
+        }
+
+    }
+
+	static interface Server {
+
+		void listen() throws IOException;
+
+	}
+
+	static class VirtualThreadServer implements Server {
+
+		private final Consumer<Socket> echo;
+
+		VirtualThreadServer(Consumer<Socket> echo) {
+			this.echo = requireNonNull(echo);
+		}
+
+		@Override
+		public void listen() throws IOException {
+			ServerSocket server = new ServerSocket(8080);
+			try (var executor = StructuredExecutor.open()) {
+				while (true) {
+					Socket socket = server.accept();
+					executor.execute(() -> echo.accept(socket));
+				}
+			}
+		}
+
+	}
 }
