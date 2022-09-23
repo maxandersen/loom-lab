@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
 import static java.util.function.Predicate.not;
 
@@ -23,7 +24,8 @@ class SingleThreadAnalyzer implements Analyzer {
 					.toList();
 			return FolderStats.createWithChildren(folder, children);
 		} catch (IOException ex) {
-			throw new UncheckedIOException(ex);
+			ex.printStackTrace();
+			return new FolderStats(folder, 0, 0, Collections.emptyList());
 		}
 	}
 
